@@ -1,0 +1,34 @@
+# How to train GPT assistants
+  # 4 major stages - 
+  # In each stage - Data set (that powers that stage) 
+                  - Algorithm (objective for training the neural network)
+                  - model (result)
+  # Pre-training - all the computational work happens - 99%
+  # Other three are fine tuning stages 
+
+# Pre-training - `
+  # Data collection - Training data mixture used in Meta's LLaMa model
+                    - Includes different proportions of data collected from different ways and websites(Wikipedia, CommonCrawl, StackExchange)
+  # Tokenization - Preprocessing step 
+                 - Raw text into sequences of integers
+                 - text -> tokens -> numbers
+                 - example method is byte pair encoding
+                 - LLaMa - 65B parameters and GPT-175B parameters but LLaMa more powerful because it is trained for significantly longer time, we cannot judge based on the number of parameters
+  # Input to the pre-training - arrays of (B, T), B - Batch size and T - Maximum context length
+# Earlier method - if you want sentiment analysis, take the data of that particular thing, train NLP model
+# New method - ignore sentiment analysis, do large language model pretraining and then come back and fine tune your model with a few examples of sentimental analysis. Works really efficient.
+# GPT-2 - Prompting instead of fine tuning - performing a task by completing a paragraph - answering a comprehensive passage questions
+# base models are only for completing documents not for answering questions. It responds by giving more questions when you ask a question.
+# Now in that case you can trick them by saying "Here is a poem about bread and cheese:" instead of asking "Write a poem about bread and cheese?"
+# you can trick them to be assistants by giving a document which looks like a conversation between human and assistant and then ask your question at the end.
+# does not work very well in practice
+# this takes us to supervised fine tuning - small and high quality prompt and ideal answer dataset just swap with the training set in the pre-training stage 
+# we get SFT models which can be actually deployed and work to some extent
+# Still we can further continue to reinforcement learning from human feedback consists of both reward modeling and reinforcement learning.
+# we ask to rank the different answers for the same prompt of the SFT model and we do something like a binary classification for all the pairs of the rewards, now we append a reward token to the end of the completion done by the SFT model and supervise the transformer only on this token
+# based on this it will make the predictions on how good the completion is for the prompt, we also have the ground truth and hence we calculate loss. This is how we train our reward moel to understand which completion is at what ranking and hence better for the prompt.
+# This reward model itself cannot be deployed because itself it is not very useful as an assistant but is very useful for the reinforcement learning stage, where we again give lots of prompt as in fine-tuning stage and now we again do SFT model and append the reward token and read off the reward using the (test of) reward model telling us the quality of every single completion and gives probabilities accordingly to the future responses.
+# RLHF models work better than base and SFT models, no particular reason but just because they are the ones which say which is the best when you are given some responses unlike generating the others which generate the responses which is difficult
+# But we can't say they are better in every purpose because RLHF model might confidently output very few variations whereas Base models can be better at tasks that require diverse ouputs
+# For example, if you give "Here are 100 pokemon names:" and give seven names, then the base model can give the names. But due to the less diverse nature of the RLHF model it is not so good at it.
+# How we can use these assistants effectively for our applications
